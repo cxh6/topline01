@@ -123,7 +123,7 @@ export default {
         .then(res => {
           // console.log(res)
           // 客户端浏览器把服务端返回的秘钥等相关信息通过sessionStorage做记录，表明是登录状态
-          window.sessionStorage.setItem('userinfo', res.data.data)
+          window.sessionStorage.setItem('userinfo', JSON.stringify(res.data.data))
 
           // 进入后台系统
           this.$router.push({ name: 'home' })

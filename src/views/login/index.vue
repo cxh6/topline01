@@ -1,6 +1,6 @@
 <template>
   <div class="login_container">
-    <div class="login_box" @keyup.enter=" login() ">
+    <div class="login_box">
       <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules">
         <img src="./logo_index.png" alt />
         <el-form-item prop="mobile">
@@ -25,7 +25,7 @@
 
         <el-form-item>
           <!-- 登录 -->
-          <el-button type="primary" style="width:100%;" @click=" login() ">登录</el-button>
+          <el-button type="primary" style="width:100%;" @click=" login() " :disabled=" isLoading " :loading=" isLoading ">登录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -48,6 +48,8 @@ export default {
         code: '246810',
         xieyi: false // 复选框是否选中
       },
+      isLoading: false, // 登录按钮是否为禁用、等待状态（false表明当前按钮不是禁用、等待状态）
+      capObj: null, // 极验对象
       // 校验
       loginFormRules: {
         // -----表单校验规则（自然方式）
@@ -75,6 +77,12 @@ export default {
         if (!valid) {
           return false
         }
+        // 判断极验窗口是否存在，存在就直接使用
+        if (this.capObj !== null) {
+          return this.capObj.verify() // 激活窗口显示
+        }
+        // 设置登录按钮为禁用、等待状态
+        this.isLoading = true
         // 极验（人机交互验证）
         this.$http({
           url: '/mp/v1_0/captchas/' + this.loginForm.mobile,
@@ -93,12 +101,19 @@ export default {
                 new_captcha: true,
                 product: 'bind' // 设置极验窗口样式
               },
+              // ***captchaObj 就是极验对象***
               captchaObj => {
                 // 这里可以调用验证实例 captchaObj 的实例方法
                 captchaObj
                   .onReady(() => {
                     // 验证码ready之后才能调用verify方法显示验证码
                     captchaObj.verify() // 显示验证码窗口
+
+                    // 在显示极验窗口之后，将登录按钮状态激活
+                    this.isLoading = false
+
+                    // 第一次生成的人机窗口对象 赋予给 this.ctpObj= captchaObj
+                    this.capObj = captchaObj
                   })
                   .onSuccess(() => {
                     // 验证账号，登录系统

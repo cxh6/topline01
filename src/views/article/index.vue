@@ -37,7 +37,22 @@
             </el-select>
           </el-form-item>
           <!-- 时间选择 -->
-          <el-form-item label="时间选择："></el-form-item>
+          <el-form-item label="时间选择：">
+            <div class="block">
+              <!--
+                  type="daterange" : 类型设置，daterange表示是日期范围选取的
+                  value-format  设置接收到时间格式
+              -->
+              <el-date-picker
+                v-model="timetotime"
+                type="daterange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                value-format="yyyy-MM-dd"
+              ></el-date-picker>
+            </div>
+          </el-form-item>
         </el-form>
       </div>
     </el-card>
@@ -49,6 +64,7 @@ export default {
   name: 'articleList',
   data () {
     return {
+      timetotime: [], // 临时接收时间范围信息
       // 搜索表单数据对象
       searchForm: {
         status: '', // 文章状态： ""-全部，0-草稿，1-待审核，2-审核通过，3-审核失败

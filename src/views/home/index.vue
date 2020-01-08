@@ -61,7 +61,7 @@
             style="cursor:pointer;margin-right:5px;"
             @click=" isCollapse = !isCollapse "
           ></i>
-          <span>江苏传智播客教育科技股份有限公司</span>
+          <span>济南小黑头条号股份有限公司</span>
         </div>
         <!-- 头部-右侧 -->
         <div class="rt">

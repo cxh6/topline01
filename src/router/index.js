@@ -6,7 +6,16 @@ Vue.use(VueRouter)
 // 创建路由
 const routes = [
   { path: '/login', name: 'login', component: () => import('@/views/login') },
-  { path: '/home', name: 'home', component: () => import('@/views/home') }
+  {
+    path: '/home',
+    name: 'home',
+    redirect: '/welcome', // 重定向
+    component: () => import('@/views/home'),
+    children: [
+      { path: '/welcome', name: 'welcome', component: () => import('@/views/welcome') },
+      { path: '/article', name: 'article', component: () => import('@/views/article') }
+    ]
+  }
 ]
 
 const router = new VueRouter({

@@ -5,12 +5,16 @@
         <img src="./logo_index.png" alt />
         <el-form-item prop="mobile">
           <!-- 手机号 -->
-          <el-input v-model="loginForm.mobile" placeholder="请输入手机号"></el-input>
+          <el-input v-model="loginForm.mobile" placeholder="请输入手机号">
+            <i slot="prefix" class="iconfont icon-shouji"></i>
+          </el-input>
         </el-form-item>
 
         <el-form-item prop="code">
           <!-- 验证码 -->
-          <el-input v-model="loginForm.code" placeholder="请输入验证码"></el-input>
+          <el-input v-model="loginForm.code" placeholder="请输入验证码">
+            <i slot="prefix" class="iconfont icon-yanzhengma"></i>
+          </el-input>
         </el-form-item>
 
         <el-form-item style="text-align:left;" prop="xieyi">
@@ -35,7 +39,8 @@
 <script>
 // 导入gt.js文件
 import './gt.js'
-
+// 引入iconfont图片文件
+import '@/assets/iconfont/iconfont.css'
 export default {
   data () {
     // 给xieyi这个项目声明方法（校验方法需要写在return前面！）

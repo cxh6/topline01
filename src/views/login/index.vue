@@ -42,6 +42,7 @@ import './gt.js'
 // 引入iconfont图片文件
 import '@/assets/iconfont/iconfont.css'
 export default {
+  name: 'login',
   data () {
     // 给xieyi这个项目声明方法（校验方法需要写在return前面！）
     let xieyiTest = function (rule, value, callback) {

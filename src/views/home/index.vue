@@ -170,6 +170,7 @@ export default {
     }
   }
   .el-main {
+    min-width: 950px;
     background-color: rgb(240, 240, 240);
   }
 }

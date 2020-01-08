@@ -24,16 +24,16 @@
             <el-radio v-model="searchForm.status" label="3">审核失败</el-radio>
           </el-form-item>
           <!-- 频道列表 -->
-          <el-form-item label="频道列表：">
+          <el-form-item label="频道列表：" >
             <!--
                 clearable：可以清除选中的项目
                 label  设置每个项目对外提示的名称
                 value 设置每个项目真实起作用的value值
             -->
             <el-select v-model="searchForm.channel_id" placeholder="请选择" clearable>
-              <el-option label="html5" value="101"></el-option>
-              <el-option label="css3" value="102"></el-option>
-              <el-option label="JS高级" value="103"></el-option>
+              <el-option v-for=" item in channelList " :key=" item.id " :label=" item.name " :value=" item.id "></el-option>
+              <!-- <el-option label="css3" value="102"></el-option>
+              <el-option label="JS高级" value="103"></el-option> -->
             </el-select>
           </el-form-item>
           <!-- 时间选择 -->
@@ -61,15 +61,58 @@
 
 <script>
 export default {
+  // 设置监听器,值发生变化后做相关处理
+  watch: {
+    timetotime: function (newV, oldV) {
+      // newV:数据变化后样子
+      // oldV:数据变化前样子
+      // 把接收到的时间信息一分为二给到 begin_pubdate 和 end_pubdate
+      if (newV) {
+        // console.log(newV)
+        this.searchForm.begin_pubdate = newV[0]
+        this.searchForm.end_pubdate = newV[1]
+        // console.log(newV[0])
+        // console.log(newV[1])
+      } else {
+        // 清除时间信息
+        this.searchForm.begin_pubdate = ''
+        this.searchForm.end_pubdate = ''
+      }
+    }
+  },
   name: 'articleList',
   data () {
     return {
+      channelList: [],
       timetotime: [], // 临时接收时间范围信息
       // 搜索表单数据对象
       searchForm: {
+        begin_pubdate: '', // 文章发布开始时间
+        end_pubdate: '', // 文章发布结束时间
         status: '', // 文章状态： ""-全部，0-草稿，1-待审核，2-审核通过，3-审核失败
         channel_id: '' // 频道id
       }
+    }
+  },
+  // 声明周期
+  created () {
+    // 获得频道信息
+    this.getChannelList()
+  },
+  methods: {
+    // 获得真实频道列表数据
+    getChannelList () {
+      this.$http({
+        method: 'GET',
+        url: '/mp/v1_0/channels'
+      }).then(res => {
+        // console.log(res)
+        // data接收数据
+        this.channelList = res.data.data.channels
+      }).catch(err => {
+        // console.log(err)
+        return this.$meaasge.error('获得频道失败' + err)
+      })
     }
   }
 }

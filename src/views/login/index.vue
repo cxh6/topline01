@@ -2,7 +2,7 @@
   <div class="login_container">
     <div class="login_box">
       <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules">
-        <img src="./logo_index.png" alt />
+        <img src="./logo_index1.png" alt />
         <el-form-item prop="mobile">
           <!-- 手机号 -->
           <el-input v-model="loginForm.mobile" placeholder="请输入手机号">

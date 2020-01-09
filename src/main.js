@@ -6,12 +6,9 @@ import router from './router'
 import '@/assets/css/global.css'
 // 引入elementui组件库
 import ElementUI from 'element-ui'
-// 引入axios模块
-import axios from 'axios'
-// 配置公共根地址
-axios.defaults.baseURL = 'http://ttapi.research.itcast.cn'
-// 将axios配置成vue的成员
-Vue.prototype.$http = axios
+
+// 导入axios相关代码
+import '@/utils/ax.js'
 
 Vue.config.productionTip = false
 // 注册组件

@@ -6,6 +6,7 @@
       isCollapse为false时（折叠），此时宽度为200px
     -->
     <el-aside :width=" isCollapse ? '65px' : '200px' ">
+    <!-- <el-aside :style="{ width: isCollapse ? '65px' : '200px' }"> -->
       <!--
         :collapse=" isCollapse " 设置折叠、展开效果
         :collapse-transition=" false "  关闭折叠、展开动画
@@ -65,7 +66,7 @@
         </div>
         <!-- 头部-右侧 -->
         <div class="rt">
-          <el-input type="text" placeholder="请输入搜索的文章内容" style="width:300px;">
+          <el-input type="text" placeholder="请输入搜索的文章内容" style="width:210px;">
             <i slot="prefix" class="el-input__icon el-icon-search"></i>
           </el-input>
           <span style="margin:0 10px;">消息</span>
@@ -165,6 +166,7 @@ export default {
         align-items: center;
         img {
           margin-right: 10px;
+          border-radius: 50%;
         }
       }
     }

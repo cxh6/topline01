@@ -42,7 +42,7 @@ import './gt.js'
 // 引入iconfont图片文件
 import '@/assets/iconfont/iconfont.css'
 export default {
-  name: 'login',
+  name: 'Login',
   data () {
     // 给xieyi这个项目声明方法（校验方法需要写在return前面！）
     let xieyiTest = function (rule, value, callback) {
@@ -50,7 +50,7 @@ export default {
     }
     return {
       loginForm: {
-        mobile: '18463848817',
+        mobile: '13911111111',
         code: '246810',
         xieyi: false // 复选框是否选中
       },

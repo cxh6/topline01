@@ -38,7 +38,7 @@ axios.interceptors.response.use(function (response) {
   // 非正常响应相关逻辑(包括401)
   // console.dir(error)
   // 判断当前错误是不是401
-  if (error.response.status === 401) {
+  if (error.response.status === 401 && confirm('该账号已过期，请重新登录')) {
     // 强制用户重新登陆，从而重新刷新token
     router.push('/login')
     // 不要做错误提示

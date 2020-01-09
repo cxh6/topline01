@@ -98,6 +98,16 @@
           <el-button type="danger" size="mini" icon="el-icon-delete">删除</el-button>
         </el-table-column>
       </el-table>
+      <!-- 分页 -->
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="searchForm.page"
+        :page-sizes="[10, 20, 30, 40]"
+        :page-size="searchForm.per_page"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="tot"
+      ></el-pagination>
     </el-card>
   </div>
 </template>
@@ -107,6 +117,15 @@ export default {
   name: 'ArticleList',
   // 设置监听器,值发生变化后做相关处理
   watch: {
+    // ------对searchForm做深度监听
+    searchForm: {
+      handler: function (newV, oldV) {
+        // 根据变化后的各个筛选条件，重新获取文章列表
+        this.getArticleList()
+      },
+      deep: true
+    },
+    // ------监听时间范围
     timetotime: function (newV, oldV) {
       // newV:数据变化后样子
       // oldV:数据变化前样子
@@ -115,8 +134,6 @@ export default {
         // console.log(newV)
         this.searchForm.begin_pubdate = newV[0]
         this.searchForm.end_pubdate = newV[1]
-        // console.log(newV[0])
-        // console.log(newV[1])
       } else {
         // 清除时间信息
         this.searchForm.begin_pubdate = ''
@@ -132,6 +149,8 @@ export default {
       timetotime: [], // 临时接收时间范围信息
       // 搜索表单数据对象
       searchForm: {
+        page: 1, // 当前数据记录页码
+        per_page: 10, // 分页数据记录条数
         begin_pubdate: '', // 文章发布开始时间
         end_pubdate: '', // 文章发布结束时间
         status: '', // 文章状态： ""-全部，0-草稿，1-待审核，2-审核通过，3-审核失败
@@ -147,6 +166,19 @@ export default {
     this.getArticleList()
   },
   methods: {
+    // --------分页相关
+    // 每页显示条数变化的回调处理
+    handleSizeChange (val) {
+      // val：变化后的每页条数
+      // 更新每页条数
+      this.searchForm.per_page = val
+    },
+    // 页码变化的回调处理
+    handleCurrentChange (val) {
+      // val：变化后的页码数
+      // 更新页码
+      this.searchForm.page = val
+    },
     // ---------获得真实频道列表数据
     getChannelList () {
       this.$http({
@@ -169,9 +201,9 @@ export default {
       // 把searchForm内部为空的成员都过滤掉
       let searchData = {} // 存放searchForm中不为空的成员
       for (var i in this.searchForm) {
-        // console.log(i) // begin_pubdate、end_pubdate、 status、 channel_id
+        // console.log(i) // begin_pubdate、end_pubdate、 status、 channel_id等
         // 判断哪些成员不为空
-        if (this.searchForm[i]) {
+        if (this.searchForm[i] || this.searchForm[i] === 0) {
           // 成员非空，把非空成员放入searchData中
           searchData[i] = this.searchForm[i]
         }
@@ -179,7 +211,8 @@ export default {
       // axios请求文章列表
       this.$http({
         method: 'GET',
-        url: '/mp/v1_0/articles'
+        url: '/mp/v1_0/articles',
+        params: searchData
       })
         .then(res => {
           // console.log(res)

@@ -23,7 +23,7 @@ const router = new VueRouter({
 })
 // 配置全局路由守卫（强制登录）
 router.beforeEach((to, from, next) => {
-// 获取当前用户登录状态
+  // 获取当前用户登录状态
   if (!window.sessionStorage.getItem('userinfo') && to.path !== '/login') {
     return next('/login')
   }

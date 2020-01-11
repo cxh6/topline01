@@ -50,7 +50,7 @@ export default {
     }
     return {
       loginForm: {
-        mobile: '13911111111',
+        mobile: '18463848817',
         code: '246810',
         xieyi: false // 复选框是否选中
       },

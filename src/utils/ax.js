@@ -5,6 +5,9 @@ import axios from 'axios'
 // 导入vue模块
 import Vue from 'vue'
 import router from '@/router'
+// 引入json-bigint
+import JSONbig from 'json-bigint'
+
 // 配置公共根地址
 axios.defaults.baseURL = 'http://ttapi.research.itcast.cn'
 // 将axios配置成vue的成员
@@ -20,6 +23,7 @@ axios.interceptors.request.use(function (config) {
   let userinfo = window.sessionStorage.getItem('userinfo')
   // 判断token是否存在，存在再做配置
   if (userinfo) {
+    // console.log(userinfo)
     // 获得token
     let token = JSON.parse(userinfo).token
     config.headers.Authorization = 'Bearer ' + token
@@ -46,3 +50,17 @@ axios.interceptors.response.use(function (response) {
   }
   return Promise.reject(error)
 })
+
+// 对服务器端返回来的数据信息做处理(尤其是大数字的处理)
+// axios配置"数据转换器"
+axios.defaults.transformResponse = [function (data) {
+  // 服务器端返回给客户端的data数据主要就两种类型
+  // 1) 字符串对象  '{xx:xx...}'
+  // 2) 空字符串   ''
+  // 在此处要利用JSONbig对返回的信息加以处理，如果不处理，系统默认是通过JSON.parse()给处理的
+  // 这样大数字就错误了
+  if (data) {
+    return JSONbig.parse(data)
+  }
+  return data
+}]

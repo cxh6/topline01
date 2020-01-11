@@ -5,6 +5,7 @@ Vue.use(VueRouter)
 
 // 创建路由
 const routes = [
+  { path: '/', redirect: '/welcome' }, // 重定向
   { path: '/login', name: 'login', component: () => import('@/views/login') },
   {
     path: '/home',
@@ -12,8 +13,15 @@ const routes = [
     redirect: '/welcome', // 重定向
     component: () => import('@/views/home'),
     children: [
+      // 后台首页
       { path: '/welcome', name: 'welcome', component: () => import('@/views/welcome') },
-      { path: '/article', name: 'article', component: () => import('@/views/article') }
+      // 文章列表
+      { path: '/article', name: 'article', component: () => import('@/views/article') },
+      // 发布文章
+      { path: '/articleadd', name: 'articleadd', component: () => import('@/views/articleadd') },
+      // 修改文章,要带着id传过去
+      { path: '/articleedit/:aid', name: 'articleedit', component: () => import('@/views/articleedit') },
+      { path: '/account', name: 'account', component: () => import('@/views/account') }
     ]
   }
 ]

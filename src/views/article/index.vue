@@ -24,21 +24,8 @@
           </el-form-item>
           <!-- 频道列表 -->
           <el-form-item label="频道列表：">
-            <!--
-                clearable：可以清除选中的项目
-                label  设置每个项目对外提示的名称
-                value 设置每个项目真实起作用的value值
-            -->
-            <el-select v-model="searchForm.channel_id" placeholder="请选择" clearable>
-              <el-option
-                v-for=" item in channelList "
-                :key=" item.id "
-                :label=" item.name "
-                :value=" item.id "
-              ></el-option>
-              <!-- <el-option label="css3" value="102"></el-option>
-              <el-option label="JS高级" value="103"></el-option>-->
-            </el-select>
+            <!-- 使用频道子组件，给频道子组件声明一个事件 -->
+            <channel @slt=" selectHandler "></channel>
           </el-form-item>
           <!-- 时间选择 -->
           <el-form-item label="时间选择：">
@@ -94,8 +81,21 @@
         <el-table-column prop="pubdate" label="发布时间"></el-table-column>
         <!-- 操作列 -->
         <el-table-column label="操作">
-          <el-button type="primary" size="mini" icon="el-icon-edit">修改</el-button>
-          <el-button type="danger" size="mini" icon="el-icon-delete">删除</el-button>
+          <template slot-scope="stData">
+            <!-- 修改文章点击按钮时，跳转到 修改 文章页面,带着id传 -->
+            <el-button
+              type="primary"
+              size="mini"
+              icon="el-icon-edit"
+              @click=" $router.push('/articleedit/'+stData.row.id) "
+            >修改</el-button>
+            <el-button
+              type="danger"
+              size="mini"
+              icon="el-icon-delete"
+              @click=" del(stData.row.id) "
+            >删除</el-button>
+          </template>
         </el-table-column>
       </el-table>
       <!-- 分页 -->
@@ -113,8 +113,14 @@
 </template>
 
 <script>
+// 导入频道子组件
+import Channel from '@/components/channel.vue'
+
 export default {
   name: 'ArticleList',
+  components: {
+    Channel
+  },
   // 设置监听器,值发生变化后做相关处理
   watch: {
     // ------对searchForm做深度监听
@@ -145,7 +151,6 @@ export default {
     return {
       tot: 0, // 文章总条数
       articleList: [], // 文章列表
-      channelList: [], // 频道
       timetotime: [], // 临时接收时间范围信息
       // 搜索表单数据对象
       searchForm: {
@@ -158,14 +163,45 @@ export default {
       }
     }
   },
-  // 声明周期
+  // 生命周期
   created () {
-    // 获得频道信息
-    this.getChannelList()
     // 获得文章列表
     this.getArticleList()
   },
   methods: {
+    // 声明事件方法，用于接收子组件channel传递过来的频道id
+    selectHandler (id) {
+      this.searchForm.channel_id = id
+    },
+    // --------删除文章
+    del (id) {
+      this.$confirm('确定删除该文件吗？', '删除', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          // 点击确定进行的操作
+          // 进行axios操作
+          this.$http({
+            method: 'DELETE',
+            url: '/mp/v1_0/articles/' + id
+          })
+            .then(res => {
+              // console.log(res);
+              this.$message.success('文章删除成功!')
+              // 更新删除的文章
+              this.getArticleList()
+            })
+            .catch(() => {
+              // console.log(err);
+              return this.$message.error('删除文章错误')
+            })
+        })
+        .catch(() => {
+          // 点击取消进行的操作
+        })
+    },
     // --------分页相关
     // 每页显示条数变化的回调处理
     handleSizeChange (val) {
@@ -179,22 +215,7 @@ export default {
       // 更新页码
       this.searchForm.page = val
     },
-    // ---------获得真实频道列表数据
-    getChannelList () {
-      this.$http({
-        method: 'GET',
-        url: '/mp/v1_0/channels'
-      })
-        .then(res => {
-          // console.log(res)
-          // data接收频道数据
-          this.channelList = res.data.data.channels
-        })
-        .catch(err => {
-          // console.log(err)
-          return this.$message.error('获得频道失败' + err)
-        })
-    },
+
     // ---------获得真实文章列表数据
     getArticleList () {
       // 给获得文章的方法getArticleList()增加文章检索条件参数，并对空的条件做**过滤**
@@ -233,5 +254,8 @@ export default {
 <style lang="less" scoped>
 .el-card {
   margin-bottom: 20px;
+  .el-pagination {
+    margin-top: 15px;
+  }
 }
 </style>

@@ -8,6 +8,8 @@ import router from '@/router'
 // 引入json-bigint
 import JSONbig from 'json-bigint'
 
+// import { MessageBox } from 'element-ui'
+
 // 配置公共根地址
 axios.defaults.baseURL = 'http://ttapi.research.itcast.cn'
 // 将axios配置成vue的成员
@@ -42,7 +44,8 @@ axios.interceptors.response.use(function (response) {
   // 非正常响应相关逻辑(包括401)
   // console.dir(error)
   // 判断当前错误是不是401
-  if (error.response.status === 401 && confirm('该账号已过期，请重新登录')) {
+  if (error.response.status === 401) {
+  // if (error.response.status === 401 && confirm('该账号已过期，请重新登录')) {
     // 强制用户重新登陆，从而重新刷新token
     router.push('/login')
     // 不要做错误提示

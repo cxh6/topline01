@@ -62,6 +62,7 @@ export default {
         })
         .catch(err => {
           // console.log(err)
+
           return this.$message.error('获得频道失败' + err)
         })
     }

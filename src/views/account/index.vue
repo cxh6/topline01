@@ -28,12 +28,32 @@
           </el-form-item>
         </el-form>
       </div>
-      <div class="rt">头像展示区域</div>
+      <!-- 头像区域 -->
+      <div class="rt">
+        <el-upload
+          class="avatar-uploader"
+          action
+          :show-file-list="false"
+          :http-request="httpRequest"
+        >
+          <img
+            v-if="accountForm.photo"
+            :src="accountForm.photo"
+            class="avatar"
+            width="260"
+            height="260"
+          />
+          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        </el-upload>
+      </div>
     </div>
   </el-card>
 </template>
 
 <script>
+// 导入bus.js
+import bus from '@/utils/bus.js'
+
 export default {
   name: 'Account',
   data () {
@@ -43,7 +63,8 @@ export default {
         name: '', // 名称
         mobile: '', // 手机号码
         email: '', // 邮箱
-        intro: '' // 简介
+        intro: '', // 简介
+        photo: '' // 头像
       },
       // 校验
       accountFormRules: {
@@ -63,7 +84,33 @@ export default {
     this.getAccountInfo()
   },
   methods: {
-    // ------、修改用户账号信息
+    // ------- 头像更改
+    httpRequest (resource) {
+      // console.log(resource) // 被上传头像图片的文件资源信息（对象）
+      let pic = resource.file
+      // 使用axios+FormData实现上传
+      let fd = new FormData()
+      fd.append('photo', pic)
+      this.$http({
+        url: '/mp/v1_0/user/photo',
+        method: 'patch',
+        data: fd
+      })
+        .then(res => {
+          // console.log(res)
+          this.$message.success('头像更新成功！')
+          // 把服务器端返回的新的头像获得到，并更新给accountForm.photo成员里边
+          // result.data.data.photo:头像完整请求地址信息
+          this.accountForm.photo = res.data.data.photo
+          // 将用户头像在home中同步更新
+          bus.$emit('upAccountPhoto', res.data.data.photo)
+        })
+        .catch(() => {
+          // console.log(err)
+          return this.$message.error('更新头像失败')
+        })
+    },
+    // ------修改用户账号信息
     editAccount () {
       this.$refs.accountFormRef.validate(valid => {
         if (!valid) {
@@ -85,6 +132,8 @@ export default {
             // console.log(res)
             // 成功提示
             this.$message.success('更新账户信息成功！')
+            // 将用户名字在home中同步更新
+            bus.$emit('upAccountName', res.data.data.name)
           })
           .catch(() => {
             // console.log(err)
@@ -118,11 +167,11 @@ export default {
   justify-content: space-between;
   .lt {
     width: 40%;
-    background-color: pink;
+    // background-color: pink;
   }
   .rt {
     width: 30%;
-    background-color: pink;
+    // background-color: pink;
   }
 }
 </style>

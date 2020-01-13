@@ -21,7 +21,10 @@ const routes = [
       { path: '/articleadd', name: 'articleadd', component: () => import('@/views/articleadd') },
       // 修改文章,要带着id传过去
       { path: '/articleedit/:aid', name: 'articleedit', component: () => import('@/views/articleedit') },
-      { path: '/account', name: 'account', component: () => import('@/views/account') }
+      // 账户管理
+      { path: '/account', name: 'account', component: () => import('@/views/account') },
+      // 素材管理
+      { path: '/material', name: 'material', component: () => import('@/views/material') }
     ]
   }
 ]

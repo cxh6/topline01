@@ -6,7 +6,7 @@
       isCollapse为false时（折叠），此时宽度为200px
     -->
     <el-aside :width=" isCollapse ? '65px' : '200px' ">
-    <!-- <el-aside :style="{ width: isCollapse ? '65px' : '200px' }"> -->
+      <!-- <el-aside :style="{ width: isCollapse ? '65px' : '200px' }"> -->
       <!--
         :collapse=" isCollapse " 设置折叠、展开效果
         :collapse-transition=" false "  关闭折叠、展开动画
@@ -35,7 +35,7 @@
           <!-- index属性中配置路由地址信息 -->
           <el-menu-item index="/article">内容列表</el-menu-item>
           <el-menu-item index="2-3">评论列表</el-menu-item>
-          <el-menu-item index="2-4">素材管理</el-menu-item>
+          <el-menu-item index="/material">素材管理</el-menu-item>
         </el-submenu>
         <!-- 粉丝管理 -->
         <el-menu-item index="3" :style="{ width: isCollapse ? '65px' : '200px'}">
@@ -98,12 +98,37 @@
 </template>
 
 <script>
+// 导入bus.js
+import bus from '@/utils/bus.js'
+
 export default {
   name: 'Home',
   data () {
     return {
+      tmpname: '', // 临时账户名称
+      tmpphoto: '', // 临时账户头像
       isCollapse: false // 折叠为true，展开为false
     }
+  },
+  created () {
+    // 1. 对  名称  进行更新
+    bus.$on('upAccountName', nm => {
+      // 更新sessionStorage中name的信息
+      let userinfo = JSON.parse(window.sessionStorage.getItem('userinfo'))
+      userinfo.name = nm
+      window.sessionStorage.setItem('userinfo', JSON.stringify(userinfo))
+      // 更新临时成员tmpname
+      this.tmpname = nm
+    })
+    // 2. 对  名称  进行更新
+    bus.$on('upAccountPhoto', ph => {
+      // 更新sessionStorage中photo的信息
+      let userinfo = JSON.parse(window.sessionStorage.getItem('userinfo'))
+      userinfo.photo = ph
+      window.sessionStorage.setItem('userinfo', JSON.stringify(userinfo))
+      // 更新临时成员tmpphoto
+      this.tmpphoto = ph
+    })
   },
   methods: {
     // 退出后台系统
@@ -126,10 +151,16 @@ export default {
   // 计算属性
   computed: {
     name () {
-      return JSON.parse(window.sessionStorage.getItem('userinfo')).name
+      return (
+        this.tmpname ||
+        JSON.parse(window.sessionStorage.getItem('userinfo')).name
+      )
     },
     photo () {
-      return JSON.parse(window.sessionStorage.getItem('userinfo')).photo
+      return (
+        this.tmpphoto ||
+        JSON.parse(window.sessionStorage.getItem('userinfo')).photo
+      )
     }
   }
 }

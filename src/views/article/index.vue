@@ -64,6 +64,14 @@
             alt="没有图标"
             width="150"
             height="100"
+            v-if="stData.row.cover.images[0]"
+          />
+           <img
+            src="./pic.jpg"
+            alt="没有图标"
+            width="150"
+            height="100"
+            v-else
           />
         </el-table-column>
         <!-- 标题 -->
@@ -113,6 +121,7 @@
 </template>
 
 <script>
+
 // 导入频道子组件
 import Channel from '@/components/channel.vue'
 

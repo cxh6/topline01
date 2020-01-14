@@ -38,7 +38,7 @@
           <el-menu-item index="/material">素材管理</el-menu-item>
         </el-submenu>
         <!-- 粉丝管理 -->
-        <el-menu-item index="3" :style="{ width: isCollapse ? '65px' : '200px'}">
+        <el-menu-item index="/fans" :style="{ width: isCollapse ? '65px' : '200px'}">
           <i class="el-icon-document"></i>
           <span slot="title">粉丝管理</span>
         </el-menu-item>
@@ -132,20 +132,34 @@ export default {
   },
   methods: {
     // 退出后台系统
-    logout () {
+    async logout () {
       // 确认是否退出
-      this.$confirm('确定要退出吗？', '退出', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          // 删除用户信息(sessionStorage删除数据)
-          window.sessionStorage.clear()
-          // 跳转到登录页面
-          this.$router.push({ name: 'login' })
+      try {
+        await this.$confirm('确定要退出吗？', '退出', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
-        .catch(() => {})
+        // 删除用户信息(sessionStorage删除数据)
+        window.sessionStorage.clear()
+        // 跳转到登录页面
+        this.$router.push({ name: 'login' })
+      } catch (err) {
+
+      }
+
+      // this.$confirm('确定要退出吗？', '退出', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // })
+      //   .then(() => {
+      //     // 删除用户信息(sessionStorage删除数据)
+      //     window.sessionStorage.clear()
+      //     // 跳转到登录页面
+      //     this.$router.push({ name: 'login' })
+      //   })
+      //   .catch(() => {})
     }
   },
   // 计算属性

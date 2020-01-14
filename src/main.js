@@ -10,6 +10,9 @@ import ElementUI from 'element-ui'
 // 导入axios相关代码
 import '@/utils/ax.js'
 
+// 引入element.js
+// import '@/utils/element.js'
+
 Vue.config.productionTip = false
 // 注册组件
 Vue.use(ElementUI)

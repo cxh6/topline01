@@ -1,5 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+// 引入nprogress相关的js和css文件
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 
 Vue.use(VueRouter)
 
@@ -24,7 +27,9 @@ const routes = [
       // 账户管理
       { path: '/account', name: 'account', component: () => import('@/views/account') },
       // 素材管理
-      { path: '/material', name: 'material', component: () => import('@/views/material') }
+      { path: '/material', name: 'material', component: () => import('@/views/material') },
+      // 粉丝管理
+      { path: '/fans', name: 'fans', component: () => import('@/views/fans') }
     ]
   }
 ]
@@ -34,11 +39,19 @@ const router = new VueRouter({
 })
 // 配置全局路由守卫（强制登录）
 router.beforeEach((to, from, next) => {
+  // 开启进度条
+  NProgress.inc()
   // 获取当前用户登录状态
   if (!window.sessionStorage.getItem('userinfo') && to.path !== '/login') {
     return next('/login')
   }
   // 放行
   next()
+})
+
+// 后置守卫
+router.afterEach((to, from) => {
+  // 完成进度条显示了
+  NProgress.done()
 })
 export default router

@@ -66,13 +66,7 @@
             height="100"
             v-if="stData.row.cover.images[0]"
           />
-           <img
-            src="./pic.jpg"
-            alt="没有图标"
-            width="150"
-            height="100"
-            v-else
-          />
+          <img src="./pic.jpg" alt="没有图标" width="150" height="100" v-else />
         </el-table-column>
         <!-- 标题 -->
         <el-table-column prop="title" label="标题"></el-table-column>
@@ -189,23 +183,35 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(() => {
+        .then(async () => {
           // 点击确定进行的操作
           // 进行axios操作
-          this.$http({
-            method: 'DELETE',
-            url: '/mp/v1_0/articles/' + id
-          })
-            .then(res => {
-              // console.log(res);
-              this.$message.success('文章删除成功!')
-              // 更新删除的文章
-              this.getArticleList()
+          try {
+            await this.$http({
+              method: 'DELETE',
+              url: '/mp/v1_0/articles/' + id
             })
-            .catch(() => {
-              // console.log(err);
-              return this.$message.error('删除文章错误')
-            })
+            // console.log(res);
+            this.$message.success('文章删除成功!')
+            // 更新删除的文章
+            this.getArticleList()
+          } catch (err) {
+            return this.$message.error('删除文章错误' + err)
+          }
+          // this.$http({
+          //   method: 'DELETE',
+          //   url: '/mp/v1_0/articles/' + id
+          // })
+          //   .then(res => {
+          //     // console.log(res);
+          //     this.$message.success('文章删除成功!')
+          //     // 更新删除的文章
+          //     this.getArticleList()
+          //   })
+          //   .catch(() => {
+          //     // console.log(err);
+          //     return this.$message.error('删除文章错误')
+          //   })
         })
         .catch(() => {
           // 点击取消进行的操作
@@ -226,7 +232,7 @@ export default {
     },
 
     // ---------获得真实文章列表数据
-    getArticleList () {
+    async  getArticleList () {
       // 给获得文章的方法getArticleList()增加文章检索条件参数，并对空的条件做**过滤**
       // 把searchForm内部为空的成员都过滤掉
       let searchData = {} // 存放searchForm中不为空的成员
@@ -239,22 +245,36 @@ export default {
         }
       }
       // axios请求文章列表
-      this.$http({
-        method: 'GET',
-        url: '/mp/v1_0/articles',
-        params: searchData
-      })
-        .then(res => {
-          // console.log(res)
-          // data接收文章列表数据
-          this.articleList = res.data.data.results
-          // 获取文章总条数
-          this.tot = res.data.data.total_count
+      try {
+        let res = await this.$http({
+          method: 'GET',
+          url: '/mp/v1_0/articles',
+          params: searchData
         })
-        .catch(err => {
-          // console.log(err)
-          return this.$message.error('获得文章列表失败' + err)
-        })
+        // console.log(res)
+        // data接收文章列表数据
+        this.articleList = res.data.data.results
+        // 获取文章总条数
+        this.tot = res.data.data.total_count
+      } catch (err) {
+        return this.$message.error('获得文章列表失败' + err)
+      }
+      // this.$http({
+      //   method: 'GET',
+      //   url: '/mp/v1_0/articles',
+      //   params: searchData
+      // })
+      //   .then(res => {
+      //     // console.log(res)
+      //     // data接收文章列表数据
+      //     this.articleList = res.data.data.results
+      //     // 获取文章总条数
+      //     this.tot = res.data.data.total_count
+      //   })
+      //   .catch(err => {
+      //     // console.log(err)
+      //     return this.$message.error('获得文章列表失败' + err)
+      //   })
     }
   }
 }

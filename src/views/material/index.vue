@@ -107,23 +107,37 @@ export default {
       this.getImageList()
     },
     // 获取素材图片列表
-    getImageList () {
-      this.$http({
-        url: '/mp/v1_0/user/images',
-        method: 'get',
-        params: this.querycdt
-      })
-        .then(res => {
-          // console.log(res)
-          // 把素材信息给到imageList上
-          this.imageList = res.data.data.results
-          // 获取素材图片总数
-          this.tot = res.data.data.total_count
+    async getImageList () {
+      try {
+        let res = await this.$http({
+          url: '/mp/v1_0/user/images',
+          method: 'get',
+          params: this.querycdt
         })
-        .catch(() => {
-          // console.log(err)
-          return this.$message.error('获取素材失败')
-        })
+        // console.log(res)
+        // 把素材信息给到imageList上
+        this.imageList = res.data.data.results
+        // 获取素材图片总数
+        this.tot = res.data.data.total_count
+      } catch (err) {
+        return this.$message.error('获取素材失败')
+      }
+      // this.$http({
+      //   url: '/mp/v1_0/user/images',
+      //   method: 'get',
+      //   params: this.querycdt
+      // })
+      //   .then(res => {
+      //     // console.log(res)
+      //     // 把素材信息给到imageList上
+      //     this.imageList = res.data.data.results
+      //     // 获取素材图片总数
+      //     this.tot = res.data.data.total_count
+      //   })
+      //   .catch(() => {
+      //     // console.log(err)
+      //     return this.$message.error('获取素材失败')
+      //   })
     }
   }
 }

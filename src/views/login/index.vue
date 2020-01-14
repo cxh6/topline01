@@ -29,7 +29,13 @@
 
         <el-form-item>
           <!-- 登录 -->
-          <el-button type="primary" style="width:100%;" @click=" login() " :disabled=" isLoading " :loading=" isLoading ">登录</el-button>
+          <el-button
+            type="primary"
+            style="width:100%;"
+            @click=" login() "
+            :disabled=" isLoading "
+            :loading=" isLoading "
+          >登录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -77,7 +83,7 @@ export default {
   methods: {
     // 登录方式进行表单校验
     login () {
-      this.$refs.loginFormRef.validate(valid => {
+      this.$refs.loginFormRef.validate(async valid => {
         // valid为true时，校验通过，
         // valid为false时，校验失败，
         if (!valid) {
@@ -90,69 +96,126 @@ export default {
         // 设置登录按钮为禁用、等待状态
         this.isLoading = true
         // 极验（人机交互验证）
-        this.$http({
-          url: '/mp/v1_0/captchas/' + this.loginForm.mobile,
-          method: 'GET'
-        })
-          .then(res => {
-            // 对象解构赋值
-            let { data } = res.data
-            // 请检测data的数据结构， 保证data.gt, data.challenge, data.success有值
-            window.initGeetest(
-              {
-                // 以下配置参数来自服务端 SDK
-                gt: data.gt,
-                challenge: data.challenge,
-                offline: !data.success,
-                new_captcha: true,
-                product: 'bind' // 设置极验窗口样式
-              },
-              // ***captchaObj 就是极验对象***
-              captchaObj => {
-                // 这里可以调用验证实例 captchaObj 的实例方法
-                captchaObj
-                  .onReady(() => {
-                    // 验证码ready之后才能调用verify方法显示验证码
-                    captchaObj.verify() // 显示验证码窗口
-
-                    // 在显示极验窗口之后，将登录按钮状态激活
-                    this.isLoading = false
-
-                    // 第一次生成的人机窗口对象 赋予给 this.ctpObj= captchaObj
-                    this.capObj = captchaObj
-                  })
-                  .onSuccess(() => {
-                    // 验证账号，登录系统
-                    this.loginAct()
-                  })
-                  .onError(() => {})
-              }
-            )
+        try {
+          let res = await this.$http({
+            url: '/mp/v1_0/captchas/' + this.loginForm.mobile,
+            method: 'GET'
           })
-          .catch(err => {
-            return this.$message.error('获取极验秘钥失败：' + err)
-          })
+          // 对象解构赋值
+          let { data } = res.data
+          // 请检测data的数据结构， 保证data.gt, data.challenge, data.success有值
+          window.initGeetest(
+            {
+              // 以下配置参数来自服务端 SDK
+              gt: data.gt,
+              challenge: data.challenge,
+              offline: !data.success,
+              new_captcha: true,
+              product: 'bind' // 设置极验窗口样式
+            },
+            // ***captchaObj 就是极验对象***
+            captchaObj => {
+              // 这里可以调用验证实例 captchaObj 的实例方法
+              captchaObj
+                .onReady(() => {
+                  // 验证码ready之后才能调用verify方法显示验证码
+                  captchaObj.verify() // 显示验证码窗口
+
+                  // 在显示极验窗口之后，将登录按钮状态激活
+                  this.isLoading = false
+
+                  // 第一次生成的人机窗口对象 赋予给 this.ctpObj= captchaObj
+                  this.capObj = captchaObj
+                })
+                .onSuccess(() => {
+                  // 验证账号，登录系统
+                  this.loginAct()
+                })
+                .onError(() => {})
+            }
+          )
+        } catch (err) {
+          return this.$message.error('获取极验秘钥失败：' + err)
+        }
+
+        // this.$http({
+        //   url: '/mp/v1_0/captchas/' + this.loginForm.mobile,
+        //   method: 'GET'
+        // })
+        //   .then(res => {
+        //     // 对象解构赋值
+        //     let { data } = res.data
+        //     // 请检测data的数据结构， 保证data.gt, data.challenge, data.success有值
+        //     window.initGeetest(
+        //       {
+        //         // 以下配置参数来自服务端 SDK
+        //         gt: data.gt,
+        //         challenge: data.challenge,
+        //         offline: !data.success,
+        //         new_captcha: true,
+        //         product: 'bind' // 设置极验窗口样式
+        //       },
+        //       // ***captchaObj 就是极验对象***
+        //       captchaObj => {
+        //         // 这里可以调用验证实例 captchaObj 的实例方法
+        //         captchaObj
+        //           .onReady(() => {
+        //             // 验证码ready之后才能调用verify方法显示验证码
+        //             captchaObj.verify() // 显示验证码窗口
+
+        //             // 在显示极验窗口之后，将登录按钮状态激活
+        //             this.isLoading = false
+
+        //             // 第一次生成的人机窗口对象 赋予给 this.ctpObj= captchaObj
+        //             this.capObj = captchaObj
+        //           })
+        //           .onSuccess(() => {
+        //             // 验证账号，登录系统
+        //             this.loginAct()
+        //           })
+        //           .onError(() => {})
+        //       }
+        //     )
+        //   })
+        //   .catch(err => {
+        //     return this.$message.error('获取极验秘钥失败：' + err)
+        //   })
       })
     },
-    loginAct () {
+    async loginAct () {
       // 服务器端账号真实校验
-      this.$http({
-        method: 'POST',
-        url: '/mp/v1_0/authorizations',
-        data: this.loginForm
-      })
-        .then(res => {
-          // console.log(res)
-          // 客户端浏览器把服务端返回的秘钥等相关信息通过sessionStorage做记录，表明是登录状态
-          window.sessionStorage.setItem('userinfo', JSON.stringify(res.data.data))
+      try {
+        let res = await this.$http({
+          method: 'POST',
+          url: '/mp/v1_0/authorizations',
+          data: this.loginForm
+        })
+        // console.log(res)
+        // 客户端浏览器把服务端返回的秘钥等相关信息通过sessionStorage做记录，表明是登录状态
+        window.sessionStorage.setItem('userinfo', JSON.stringify(res.data.data))
 
-          // 进入后台系统
-          this.$router.push({ name: 'home' })
-        })
-        .catch(err => {
-          // console.log(err)
-          this.$message.error('手机号或验证码错误' + err)
-        })
+        // 进入后台系统
+        this.$router.push({ name: 'home' })
+      } catch (err) {
+        this.$message.error('手机号或验证码错误' + err)
+      }
+      // this.$http({
+      //   method: 'POST',
+      //   url: '/mp/v1_0/authorizations',
+      //   data: this.loginForm
+      // })
+      //   .then(res => {
+      //     // console.log(res)
+      //     // 客户端浏览器把服务端返回的秘钥等相关信息通过sessionStorage做记录，表明是登录状态
+      //     window.sessionStorage.setItem('userinfo', JSON.stringify(res.data.data))
+
+      //     // 进入后台系统
+      //     this.$router.push({ name: 'home' })
+      //   })
+      //   .catch(err => {
+      //     // console.log(err)
+      //     this.$message.error('手机号或验证码错误' + err)
+      //   })
     }
   }
 }

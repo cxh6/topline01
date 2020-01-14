@@ -21,9 +21,10 @@
         </el-radio-group>
         <!-- 封面---图片选择区域 -->
         <ul>
-          <li class="uploadbox" v-for="item in covernum" :key="item" @click="showDialog()">
+          <li class="uploadbox" v-for="item in covernum" :key="item" @click="showDialog(item)">
             <span>点击图标选择图片</span>
-            <div class="el-icon-picture-outline"></div>
+            <img v-if="addForm.cover.images[item-1]" :src="addForm.cover.images[item-1]" alt />
+            <div v-else class="el-icon-picture-outline"></div>
           </li>
         </ul>
       </el-form-item>
@@ -38,7 +39,7 @@
       </el-form-item>
     </el-form>
     <!-- 对话框 -->
-    <el-dialog title="提示" :visible.sync="dialogVisible" width="60%">
+    <el-dialog title="提示" :visible.sync="dialogVisible" width="60%" @close=" clearImage ">
       <!-- 标签切换效果 -->
       <el-tabs v-model="activeName" type="card">
         <el-tab-pane class="one" label="素材库" name="first">
@@ -61,8 +62,8 @@
         </el-tab-pane>
         <el-tab-pane class="two" label="上传图片" name="second">
           <div class="upLImg">
-            <img :src=" imgSrc " alt width="450" height="260" />
-             <i class="el-icon-picture-outline"></i>
+            <img v-if=" imgSrc " :src=" imgSrc " alt width="450" height="260" />
+            <i v-else class="el-icon-picture-outline"></i>
           </div>
           <el-upload
             action="http://ttapi.research.itcast.cn/mp/v1_0/user/images"
@@ -78,7 +79,7 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="imageOk">确 定</el-button>
       </span>
     </el-dialog>
   </el-card>
@@ -121,6 +122,8 @@ export default {
   },
   data () {
     return {
+      materialUrl: '', // 选中的素材图片的路径名地址信息
+      xu: 0, // 记录选择框序号（0第一个，1第二个，2第三个）
       imgSrc: '', // 上传图片
       tot: 0, // 素材图片总数
       activeName: 'first', // 默认激活标签
@@ -138,7 +141,7 @@ export default {
         content: '',
         cover: {
           type: 0,
-          images: []
+          images: [] // 图片地址集合
         },
         channel_id: ''
       },
@@ -166,7 +169,34 @@ export default {
     }
   },
   methods: {
-    // // 图片上传成功之后的回调处理
+    // ---------给选中图片做初始化清除工作
+    clearImage () {
+      // 清除全部li的border样式
+      let lis = document.querySelectorAll('li')
+      for (var i = 0; i < lis.length; i++) {
+        lis[i].style.border = ''
+        // 选中图片的materialUrl清空
+        this.materialUrl = ''
+        // 上传成功后的图片的imgSrc清空
+        this.imgSrc = ''
+      }
+    },
+    // ----------// 素材图片选取好，点击“对话框”确定按钮后，记录素材图片
+    imageOk () {
+      // 判断是否选中图片
+      if (this.materialUrl) {
+        // 把选择好的图片地址给addForm.cover.images里面
+        this.addForm.cover.images[this.xu] = this.materialUrl
+        // this.addForm.cover.images[this.xu] = this.imgSrc
+        // 关闭对话框
+        this.dialogVisible = false
+        this.activeName = 'first'
+      } else {
+        // 提示信息
+        this.$message.error('咋地，一个都没有相中？')
+      }
+    },
+    // ---------- 图片上传成功之后的回调处理
     onSuccess: function (response, file, fileList) {
       // console.log(response)
       // console.log(file)
@@ -177,6 +207,9 @@ export default {
       this.imgSrc = response.data.url
       // 刷新图片素材列表
       this.getImageList()
+      // console.log(fileList)
+      // 将当前上传好的图片素材的url给到materialUrl上
+      this.materialUrl = this.imgSrc
     },
     // ---------分页相关
     // 每页显示图片数量变化的回调处理
@@ -207,28 +240,50 @@ export default {
       // evt.target:会获得触发事件的当前元素dom对象
       let nowli = evt.target.parentNode
       nowli.style.border = '5px solid red'
+      // 把当前选中图片的src地址信息赋予给meterialUrl成员
+      // console.log(evt.target)
+      this.materialUrl = evt.target.src
+      // console.log(this.materialUrl)
     },
     // --------获取素材图片列表
-    getImageList () {
-      this.$http({
-        url: '/mp/v1_0/user/images',
-        method: 'get',
-        params: this.querycdt
-      })
-        .then(res => {
-          // console.log(res)
-          // 把素材信息给到imageList上
-          this.imageList = res.data.data.results
-          // 图片总数
-          this.tot = res.data.data.total_count
+    async getImageList () {
+      try {
+        let res = await this.$http({
+          url: '/mp/v1_0/user/images',
+          method: 'get',
+          params: this.querycdt
         })
-        .catch(() => {
-          // console.log(err)
-          return this.$message.error('获取素材失败')
-        })
+        // console.log(res)
+        // 把素材信息给到imageList上
+        this.imageList = res.data.data.results
+        // 图片总数
+        this.tot = res.data.data.total_count
+      } catch (err) {
+        return this.$message.error('获取素材失败' + err)
+      }
+      // this.$http({
+      //   url: '/mp/v1_0/user/images',
+      //   method: 'get',
+      //   params: this.querycdt
+      // })
+      //   .then(res => {
+      //     // console.log(res)
+      //     // 把素材信息给到imageList上
+      //     this.imageList = res.data.data.results
+      //     // 图片总数
+      //     this.tot = res.data.data.total_count
+      //   })
+      //   .catch(() => {
+      //     // console.log(err)
+      //     return this.$message.error('获取素材失败')
+      //   })
     },
     // -------展示对话框逻辑
-    showDialog () {
+    showDialog (n) {
+      // console.log(n) // n:1/2/3
+      // 更新xu成员,0/1/2分别代表选择框序号
+      this.xu = n - 1
+      // console.log(this.xu)
       this.dialogVisible = true // 打开dialog对话框
     },
 
@@ -238,28 +293,43 @@ export default {
     },
     // ---------发布文章
     addArticle (flag) {
-      this.$refs.addFormRef.validate(valid => {
+      this.$refs.addFormRef.validate(async valid => {
         if (!valid) {
           return false
         }
         // axios真实表单校验
-        this.$http({
-          method: 'POST',
-          url: '/mp/v1_0/articles',
-          data: this.addForm, // 表单数据
-          params: {
-            draft: flag
-          } // 请求字符串数据
-        })
-          .then(res => {
-            // console.log(res);
-            // 跳转到文章列表页面
-            this.$router.push({ name: 'article' })
+        try {
+          await this.$http({
+            method: 'POST',
+            url: '/mp/v1_0/articles',
+            data: this.addForm, // 表单数据
+            params: {
+              draft: flag
+            } // 请求字符串数据
           })
-          .catch(err => {
-            // console.log(err)
-            return this.$message.error('发布文章失败' + err)
-          })
+          // console.log(res);
+          // 跳转到文章列表页面
+          this.$router.push({ name: 'article' })
+        } catch (err) {
+          return this.$message.error('发布文章失败' + err)
+        }
+        // this.$http({
+        //   method: 'POST',
+        //   url: '/mp/v1_0/articles',
+        //   data: this.addForm, // 表单数据
+        //   params: {
+        //     draft: flag
+        //   } // 请求字符串数据
+        // })
+        //   .then(res => {
+        //     // console.log(res);
+        //     // 跳转到文章列表页面
+        //     this.$router.push({ name: 'article' })
+        //   })
+        //   .catch(err => {
+        //     // console.log(err)
+        //     return this.$message.error('发布文章失败' + err)
+        //   })
       })
     }
   }
@@ -272,22 +342,20 @@ export default {
   flex-direction: column;
 }
 .el-tab-pane.two {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   .upLImg {
-    margin: 0 auto 15px;
+    margin-bottom: 15px;
     width: 450px;
     height: 260px;
     border: 1px dashed #ccc;
-i{
-    font-size: 160px;
-    line-height: 260px;
-    color: rgb(221, 221, 221);
-
     text-align: center;
-}
-  }
-  .el-upload {
-    height: 50px;
+    i {
+      font-size: 160px;
+      line-height: 260px;
+      color: rgb(221, 221, 221);
+    }
   }
 }
 

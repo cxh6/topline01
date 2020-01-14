@@ -85,34 +85,51 @@ export default {
   },
   methods: {
     // ------- 头像更改
-    httpRequest (resource) {
+    async httpRequest (resource) {
       // console.log(resource) // 被上传头像图片的文件资源信息（对象）
       let pic = resource.file
       // 使用axios+FormData实现上传
       let fd = new FormData()
       fd.append('photo', pic)
-      this.$http({
-        url: '/mp/v1_0/user/photo',
-        method: 'patch',
-        data: fd
-      })
-        .then(res => {
-          // console.log(res)
-          this.$message.success('头像更新成功！')
-          // 把服务器端返回的新的头像获得到，并更新给accountForm.photo成员里边
-          // result.data.data.photo:头像完整请求地址信息
-          this.accountForm.photo = res.data.data.photo
-          // 将用户头像在home中同步更新
-          bus.$emit('upAccountPhoto', res.data.data.photo)
+      // axios
+      try {
+        let res = await this.$http({
+          url: '/mp/v1_0/user/photo',
+          method: 'patch',
+          data: fd
         })
-        .catch(() => {
-          // console.log(err)
-          return this.$message.error('更新头像失败')
-        })
+        this.$message.success('头像更新成功！')
+        // 把服务器端返回的新的头像获得到，并更新给accountForm.photo成员里边
+        // result.data.data.photo:头像完整请求地址信息
+        this.accountForm.photo = res.data.data.photo
+        // 将用户头像在home中同步更新
+        bus.$emit('upAccountPhoto', res.data.data.photo)
+      } catch (err) {
+        return this.$message.error('更新头像失败')
+      }
+
+      // this.$http({
+      //   url: '/mp/v1_0/user/photo',
+      //   method: 'patch',
+      //   data: fd
+      // })
+      //   .then(res => {
+      //     // console.log(res)
+      //     this.$message.success('头像更新成功！')
+      //     // 把服务器端返回的新的头像获得到，并更新给accountForm.photo成员里边
+      //     // result.data.data.photo:头像完整请求地址信息
+      //     this.accountForm.photo = res.data.data.photo
+      //     // 将用户头像在home中同步更新
+      //     bus.$emit('upAccountPhoto', res.data.data.photo)
+      //   })
+      //   .catch(() => {
+      //     // console.log(err)
+      //     return this.$message.error('更新头像失败')
+      //   })
     },
     // ------修改用户账号信息
     editAccount () {
-      this.$refs.accountFormRef.validate(valid => {
+      this.$refs.accountFormRef.validate(async valid => {
         if (!valid) {
           return false
         }
@@ -123,39 +140,64 @@ export default {
         // patch: 对“部分”表单域项目进行修改
         // get“请求字符串”参数通过params传递，params设置参数会在url地址中体现 ?x=y&x=y....
         // 其他请求方式传递的参数都是data(浏览器地址栏看不见该参数)
-        this.$http({
-          method: 'patch',
-          url: '/mp/v1_0/user/profile',
-          data: this.accountForm
-        })
-          .then(res => {
-            // console.log(res)
-            // 成功提示
-            this.$message.success('更新账户信息成功！')
-            // 将用户名字在home中同步更新
-            bus.$emit('upAccountName', res.data.data.name)
+        try {
+          let res = await this.$http({
+            method: 'patch',
+            url: '/mp/v1_0/user/profile',
+            data: this.accountForm
           })
-          .catch(() => {
-            // console.log(err)
-            return this.$message.error('更新账户信息失败！')
-          })
+          // console.log(res)
+          // 成功提示
+          this.$message.success('更新账户信息成功！')
+          // 将用户名字在home中同步更新
+          bus.$emit('upAccountName', res.data.data.name)
+        } catch (err) {
+          return this.$message.error('更新账户信息失败！')
+        }
+        // this.$http({
+        //   method: 'patch',
+        //   url: '/mp/v1_0/user/profile',
+        //   data: this.accountForm
+        // })
+        //   .then(res => {
+        //     // console.log(res)
+        //     // 成功提示
+        //     this.$message.success('更新账户信息成功！')
+        //     // 将用户名字在home中同步更新
+        //     bus.$emit('upAccountName', res.data.data.name)
+        //   })
+        //   .catch(() => {
+        //     // console.log(err)
+        //     return this.$message.error('更新账户信息失败！')
+        //   })
       })
     },
     // ------获取用户账号信息
-    getAccountInfo () {
-      this.$http({
-        url: '/mp/v1_0/user/profile',
-        method: 'get'
-      })
-        .then(res => {
-          // console.log(res)
-          // 将获得好的账户信息给到accountForm上
-          this.accountForm = res.data.data
+    async getAccountInfo () {
+      try {
+        let res = await this.$http({
+          url: '/mp/v1_0/user/profile',
+          method: 'get'
         })
-        .catch(() => {
-          // console.log(err)
-          return this.$message.error('获取账户信息失败')
-        })
+        // console.log(res)
+        // 将获得好的账户信息给到accountForm上
+        this.accountForm = res.data.data
+      } catch (err) {
+        return this.$message.error('获取账户信息失败')
+      }
+      // this.$http({
+      //   url: '/mp/v1_0/user/profile',
+      //   method: 'get'
+      // })
+      //   .then(res => {
+      //     // console.log(res)
+      //     // 将获得好的账户信息给到accountForm上
+      //     this.accountForm = res.data.data
+      //   })
+      //   .catch(() => {
+      //     // console.log(err)
+      //     return this.$message.error('获取账户信息失败')
+      //   })
     }
   }
 }

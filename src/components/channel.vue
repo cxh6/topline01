@@ -50,21 +50,19 @@ export default {
   },
   methods: {
     // ---------获得真实频道列表数据
-    getChannelList () {
-      this.$http({
-        method: 'GET',
-        url: '/mp/v1_0/channels'
-      })
-        .then(res => {
-          // console.log(res)
-          // data接收频道数据
-          this.channelList = res.data.data.channels
+    async  getChannelList () {
+      try {
+        // 有可能产生错误的代码
+        let res = await this.$http({
+          method: 'GET',
+          url: '/mp/v1_0/channels'
         })
-        .catch(err => {
-          // console.log(err)
-
-          return this.$message.error('获得频道失败' + err)
-        })
+        // data接收频道数据
+        this.channelList = res.data.data.channels
+      } catch (err) {
+        // 捕捉错误信息
+        return this.$message.error('获得频道失败' + err)
+      }
     }
   }
 }

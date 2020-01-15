@@ -77,7 +77,7 @@
               <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>个人信息</el-dropdown-item>
+              <el-dropdown-item @click.native=" toAccount ">个人信息</el-dropdown-item>
               <el-dropdown-item>github地址</el-dropdown-item>
               <!--
                 <组件 @click=" xxx "> : 作用到封装体上
@@ -131,6 +131,13 @@ export default {
     })
   },
   methods: {
+    // ------跳转到账户信息
+    toAccount () {
+      if (window.location.hash === '#/account') {
+        return false
+      }
+      this.$router.push({ name: 'account' })
+    },
     // 退出后台系统
     async logout () {
       // 确认是否退出
